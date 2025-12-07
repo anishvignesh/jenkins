@@ -8,7 +8,7 @@ pipeline {
     }
 
     triggers {
-        // Every 10 minutes — change to */1 * * * * for every 1 minute
+        // every 10 minutes (change to */1 * * * * for every 1 min)
         cron('H/10 * * * *')
     }
 
@@ -19,12 +19,12 @@ pipeline {
             }
         }
 
-        stage('Health Check & Auto Restart') {
+        stage('Run Health Check Script') {
             steps {
                 script {
                     sh """
-                        chmod +x scripts/check_nginx.sh
-                        scripts/check_nginx.sh "${HEALTH_URL}" ${MAX_RETRIES} ${SLEEP_BETWEEN}
+                        chmod +x check_nginx.sh
+                        ./check_nginx.sh "${HEALTH_URL}" ${MAX_RETRIES} ${SLEEP_BETWEEN}
                     """
                 }
             }
@@ -33,10 +33,10 @@ pipeline {
 
     post {
         success {
-            echo "Nginx check completed successfully."
+            echo "Nginx OK."
         }
         failure {
-            echo "Nginx is DOWN even after restart attempts!"
+            echo "Nginx is DOWN even after restart attempts."
         }
     }
 }
