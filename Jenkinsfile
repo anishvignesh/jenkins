@@ -1,11 +1,55 @@
+// Declarative pipeline: append latest commit info to a file on the Jenkins VM
 pipeline {
-    agent any
+  agent any
 
-    stages {
-        stage('Test') {
-            steps {
-                echo "Jenkinsfile detected — pipeline is working!"
-            }
-        }
+  environment {
+    LOG_FILE = '/var/lib/jenkins/commit-log.txt'   // change if you want a different file
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        // checkout the commit that triggered the job
+        checkout scm
+      }
     }
+
+    stage('Collect Commit Info') {
+      steps {
+        script {
+          // Use git to get latest commit details
+          // Format: hash|author name|author email|date|message
+          // date uses ISO 8601 for clarity
+          def commitInfo = sh(
+            script: "git log -1 --pretty=format:'%H|%an|%ae|%aI|%s'",
+            returnStdout: true
+          ).trim()
+
+          // debug log
+          echo "Commit info: ${commitInfo}"
+
+          // Append to the log file on the Jenkins VM
+          // Use >> to append; ensure the jenkins user has write permission to LOG_FILE
+          sh """
+            mkdir -p \$(dirname ${LOG_FILE})
+            if [ ! -f ${LOG_FILE} ]; then
+              echo "commit_hash|author_name|author_email|date|message" > ${LOG_FILE}
+              chown jenkins:jenkins ${LOG_FILE} || true
+              chmod 664 ${LOG_FILE} || true
+            fi
+            echo "${commitInfo}" >> ${LOG_FILE}
+          """
+        }
+      }
+    }
+  }
+
+  post {
+    success {
+      echo "Appended commit info to ${env.LOG_FILE}"
+    }
+    failure {
+      echo "Pipeline failed - commit info not appended."
+    }
+  }
 }
