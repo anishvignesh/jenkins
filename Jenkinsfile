@@ -2,15 +2,13 @@ pipeline {
     agent any
 
     environment {
-        HEALTH_URL = "http://3.108.234.45/"
+        HEALTH_URL = "http://localhost/"
+
         MAX_RETRIES = "3"
         SLEEP_BETWEEN = "5"
     }
 
-    triggers {
-        // every 10 minutes (change to */1 * * * * for every 1 min)
-        cron('H/10 * * * *')
-    }
+ 
 
     stages {
         stage('Checkout') {
