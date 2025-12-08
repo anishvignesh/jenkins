@@ -1,0 +1,27 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/anishvignesh/jenkins.git'
+            }
+        }
+
+        stage('Deploy index.html & style.css') {
+            steps {
+                sh '''
+                rm -rf /var/www/html/*
+                cp index.html /var/www/html/
+                cp style.css /var/www/html/
+                '''
+            }
+        }
+
+        stage('Reload Nginx') {
+            steps {
+                sh 'sudo systemctl reload nginx'
+            }
+        }
+    }
+}
