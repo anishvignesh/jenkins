@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     parameters {
-        string(name: 'HEALTH_URL', defaultValue: 'http://3.108.234.45/', description: 'Enter the Nginx health check URL')
+        string(name: 'HEALTH_URL', defaultValue: 'http://localhost/', description: 'Enter the Nginx health check URL')
         string(name: 'MAX_RETRIES', defaultValue: '3', description: 'Number of restart attempts')
         string(name: 'SLEEP_BETWEEN', defaultValue: '5', description: 'Time to wait between retries in seconds')
     }
