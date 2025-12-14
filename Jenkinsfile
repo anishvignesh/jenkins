@@ -29,4 +29,14 @@ pipeline {
         }
     }
 
+    post {
+        success {
+            echo "Nginx OK."
+        }
+        failure {
+            echo "Nginx is DOWN even after restart attempts."
+        }
+    }
+}
+
     
